@@ -41,5 +41,5 @@ EOF
 echo "Development Vault server started "
 echo "Terraform authentication file has been set for vault dev server"
 echo "Press [ENTER] to stop the vault server..."
-read -r response
+read -r
 exit 0
