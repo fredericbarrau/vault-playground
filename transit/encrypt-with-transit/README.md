@@ -3,7 +3,7 @@
 
 ## Usage
 
-* Start a vault server + the terraform configuration with : `scripts/start-vault.sh``
+* Start a vault server + the terraform configuration with : `scripts/start-vault.sh`
 
 ### Encryption / Decryption
 
@@ -33,7 +33,7 @@ vault write -f transit/keys/my_application/config min_decryption_version=2
 Now decryption of a file previously encrypted with key one will be disallowed:
 
 ```console
-─$ ./decrypt-file.sh ../data/vault-logo.png.20220827-121128.encrypted
+$ ./decrypt-file.sh ../data/vault-logo.png.20220827-121128.encrypted
 Error writing data to transit/decrypt/my_application: Error making API request.
 
 URL: PUT http://localhost:8200/v1/transit/decrypt/my_application
