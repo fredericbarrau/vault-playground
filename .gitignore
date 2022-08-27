@@ -4,6 +4,8 @@
 ## Common ##
 log/*
 !log/.gitkeep
+data/*.encrypted*
+data/*.decrypted*
 
 ### Helm ###
 # Chart dependencies

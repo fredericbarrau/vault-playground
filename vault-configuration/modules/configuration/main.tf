@@ -13,3 +13,9 @@ resource "vault_mount" "transit" {
     convergent_encryption = false
   }
 }
+
+# Encryption key for an application
+resource "vault_transit_secret_backend_key" "my_application" {
+  backend = vault_mount.transit.path
+  name    = "my_application"
+}
