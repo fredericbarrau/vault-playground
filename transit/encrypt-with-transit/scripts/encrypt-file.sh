@@ -24,4 +24,5 @@ if vault write -format=json transit/encrypt/my_application plaintext="$(base64 <
 else
   echo "Failed to encrypt $INPUT_FILE"
   rm -f "$ENCRYPTED_FILE"
+  exit 1
 fi

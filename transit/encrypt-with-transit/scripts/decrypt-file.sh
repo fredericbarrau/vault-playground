@@ -30,4 +30,5 @@ if vault write -field=plaintext transit/decrypt/my_application ciphertext="$CIPH
 else
   rm -f "$DECRYPTED_FILE"
   echo "Failed to decrypt $INPUT_FILE"
+  exit 1
 fi
