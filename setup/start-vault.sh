@@ -18,7 +18,7 @@ realpath() {
 trap cleanup EXIT TERM
 
 # MAIN
-SCRIPT_PATH="$(realpath "${0%/*}")"
+SCRIPT_PATH="$(realpath "$(dirname "$0")")"
 LOG_PATH="$(realpath "$SCRIPT_PATH/../log")"
 VAULT_LOG="$LOG_PATH/vault.log"
 TF_DEV_PATH="$(realpath "$SCRIPT_PATH/../vault-configuration/environments/development")"
