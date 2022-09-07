@@ -12,7 +12,7 @@ realpath() {
 SCRIPT_PATH="$(realpath "$(dirname "$0")")"
 DATA_PATH="$(realpath "$SCRIPT_PATH/../data")"
 # shellcheck disable=SC2034
-VAULT_ADDR=http://localhost:8200
+VAULT_ADDR=${VAULT_ADDR:-http://localhost:8200}
 
 INPUT_FILE=${1:-$DATA_PATH/vault-logo.png}
 ENCRYPTED_FILE=$INPUT_FILE.$(date "+%Y%m%d-%H%M%S").encrypted
