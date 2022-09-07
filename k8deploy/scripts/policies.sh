@@ -65,9 +65,9 @@ EOF
 # ----
 # Per environment secrets
 # ---
-
-# LYRA API key - production
-cat <<EOF >"$DATA_DIR"/policy-shared-lyra-production-write.hcl
+createEnvironmentsPolicies() {
+  # LYRA API key - production
+  cat <<EOF >"$DATA_DIR"/policy-shared-lyra-production-write.hcl
 path "secret/shared/lyra/environments/production/lyra-api-auth" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
@@ -76,7 +76,7 @@ path "secret/data/shared/lyra/environments/production/lyra-api-auth" {
 }
 EOF
 
-cat <<EOF >"$DATA_DIR"/policy-shared-lyra-production-read.hcl
+  cat <<EOF >"$DATA_DIR"/policy-shared-lyra-production-read.hcl
 path "secret/shared/lyra/environments/production/lyra-api-auth" {
   capabilities = ["read"]
 }
@@ -85,8 +85,8 @@ path "secret/data/shared/lyra/environments/production/lyra-api-auth" {
 }
 EOF
 
-# LYRA API key - development
-cat <<EOF >"$DATA_DIR"/policy-shared-lyra-development-write.hcl
+  # LYRA API key - development
+  cat <<EOF >"$DATA_DIR"/policy-shared-lyra-development-write.hcl
 path "secret/shared/lyra/environments/development/lyra-api-auth" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
@@ -95,7 +95,7 @@ path "secret/data/shared/lyra/environments/development/lyra-api-auth" {
 }
 EOF
 
-cat <<EOF >"$DATA_DIR"/policy-shared-lyra-development-read.hcl
+  cat <<EOF >"$DATA_DIR"/policy-shared-lyra-development-read.hcl
 path "secret/shared/lyra/environments/development/lyra-api-auth" {
   capabilities = ["read"]
 }
@@ -104,14 +104,14 @@ path "secret/data/shared/lyra/environments/development/lyra-api-auth" {
 }
 EOF
 
-# S3 API AK/SK - production
-cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-production-write.hcl
+  # S3 API AK/SK - production
+  cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-production-write.hcl
 path "secret/shared/aws-s3-pleenk-data/environments/production/aws-s3-pleenk-data" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
 EOF
 
-cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-production-read.hcl
+  cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-production-read.hcl
 path "secret/shared/aws-s3-pleenk-data/environments/production/aws-s3-pleenk-data" {
   capabilities = [ "read"]
 }
@@ -120,8 +120,8 @@ path "secret/data/shared/aws-s3-pleenk-data/environments/production/aws-s3-pleen
 }
 EOF
 
-# S3 API AK/SK - development
-cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-development-write.hcl
+  # S3 API AK/SK - development
+  cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-development-write.hcl
 path "secret/shared/aws-s3-pleenk-data/environments/development/aws-s3-pleenk-data" {
   capabilities = ["create", "read", "update", "patch", "delete", "list"]
 }
@@ -130,7 +130,7 @@ path "secret/data/shared/aws-s3-pleenk-data/environments/development/aws-s3-plee
 }
 EOF
 
-cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-development-read.hcl
+  cat <<EOF >"$DATA_DIR"/policy-shared-awss3pleenk-development-read.hcl
 path "secret/shared/aws-s3-pleenk-data/environments/development/aws-s3-pleenk-data" {
   capabilities = ["read"]
 }
@@ -138,6 +138,7 @@ path "secret/data/shared/aws-s3-pleenk-data/environments/development/aws-s3-plee
   capabilities = ["read"]
 }
 EOF
+}
 
 createPerEnvironmentPolicies() {
   environment=$1
@@ -147,70 +148,44 @@ createPerEnvironmentPolicies() {
     filename_environment=$environment
   fi
 
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-bff-write.hcl"
-  path "secret/environments/$environment/internals/bff/bff-jwt-encrypt-private" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
-  path "secret/data/environments/$environment/internals/bff/bff-jwt-encrypt-private" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
+  for application in bff auth marketplace; do
+
+    cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-$application-write.hcl"
+path "secret/environments/$environment/internals/$application/$application-jwt-sign-private" {
+  capabilities = ["create", "read", "update", "patch", "delete", "list"]
+}
+path "secret/data/environments/$environment/internals/$application/$application-jwt-sign-private" {
+  capabilities = ["create", "read", "update", "patch", "delete", "list"]
+}
 EOF
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-bff-read.hcl"
-  path "secret/environments/$environment/internals/bff/bff-jwt-encrypt-private" {
-    capabilities = ["read"]
-  }
-  path "secret/data/environments/$environment/internals/bff/bff-jwt-encrypt-private" {
-    capabilities = ["read"]
-  }
+    cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-$application-read.hcl"
+path "secret/environments/$environment/internals/$application/$application-jwt-sign-private" {
+  capabilities = ["read"]
+}
+path "secret/data/environments/$environment/internals/$application/$application-jwt-sign-private" {
+  capabilities = ["read"]
+}
 EOF
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-auth-write.hcl"
-  path "secret/environments/$environment/internals/auth/auth-jwt-encrypt-private" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
-  path "secret/data/environments/$environment/internals/auth/auth-jwt-encrypt-private" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
+
+    cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-$application-shared-write.hcl"
+path "secret/environments/$environment/internals/shared/*" {
+  capabilities = ["create", "read", "update", "patch", "delete", "list"]
+}
+path "secret/data/environments/$environment/internals/shared/*" {
+  capabilities = ["create", "read", "update", "patch", "delete", "list"]
+}
 EOF
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-auth-read.hcl"
-  path "secret/environments/$environment/internals/auth/auth-jwt-encrypt-private" {
-    capabilities = ["read"]
-  }
-  path "secret/data/environments/$environment/internals/auth/auth-jwt-encrypt-private" {
-    capabilities = ["read"]
-  }
+    cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-$application-shared-read.hcl"
+path "secret/environments/$environment/internals/shared/*" {
+  capabilities = ["read"]
+}
+path "secret/data/environments/$environment/internals/shared/*" {
+  capabilities = ["read"]
+}
 EOF
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-marketplace-write.hcl"
-  path "secret/environments/$environment/internals/marketplace/marketplace-jwt-sign-private" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
-  path "secret/data/environments/$environment/internals/marketplace/marketplace-jwt-sign-private" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
-EOF
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-marketplace-read.hcl"
-  path "secret/environments/$environment/internals/marketplace/marketplace-jwt-sign-private" {
-    capabilities = ["read"]
-  }
-  path "secret/data/environments/$environment/internals/marketplace/marketplace-jwt-sign-private" {
-    capabilities = ["read"]
-  }
-EOF
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-shared-write.hcl"
-  path "secret/environments/$environment/internals/shared/*" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
-  path "secret/data/environments/$environment/internals/shared/*" {
-    capabilities = ["create", "read", "update", "patch", "delete", "list"]
-  }
-EOF
-  cat <<EOF >"$DATA_DIR/policy-infra-$filename_environment-internals-shared-read.hcl"
-  path "secret/environments/$environment/internals/shared/*" {
-    capabilities = ["read"]
-  }
-  path "secret/data/environments/$environment/internals/shared/*" {
-    capabilities = ["read"]
-  }
-EOF
+
+  done
+
 }
 
 # MAIN
@@ -218,9 +193,14 @@ SCRIPT_DIR="$(dirname "$0")"
 DATA_DIR="$(realpath "$SCRIPT_DIR"/../data)"
 CONFIG_DIR=$DATA_DIR/config
 
+mkdir -p "$CONFIG_DIR"
+
 find "$DATA_DIR" -name 'policy*.hcl' -delete
 
 createSharedSecretsPolicies
+
+createEnvironmentsPolicies
+
 for environment in production ci; do
   createPerEnvironmentPolicies $environment
 done
