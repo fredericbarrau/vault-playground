@@ -14,7 +14,7 @@ SCRIPT_DIR="$(dirname "$0")"
 DATA_DIR="$(realpath "$SCRIPT_DIR"/../data)"
 CONFIG_DIR=$DATA_DIR/config
 TERRAFORM_DIR="$(realpath "$SCRIPT_DIR"/../vault-configuration/environments/development/)"
-VAULT_VERSION=0.21.0 # Vault 1.11.2
+RELEASE_VERSION=0.21.0 # Vault 1.11.2
 
 if ! kubectl get namespace vault >/dev/null 2>&1; then
   kubectl create namespace vault
@@ -36,7 +36,7 @@ server:
 EOF
 
   helm install vault hashicorp/vault \
-    --namespace vault --version "$VAULT_VERSION" \
+    --namespace vault --version "$RELEASE_VERSION" \
     --values "$CONFIG_DIR"/helm-vault-raft-values.yml
 fi
 

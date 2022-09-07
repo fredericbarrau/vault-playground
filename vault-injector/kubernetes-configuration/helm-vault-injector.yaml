@@ -1,0 +1,6 @@
+global:
+  enabled: false
+  externalVaultAddr: http://10.0.0.20:8200
+injector:
+  enabled: true
+  externalVaultAddr: http://10.0.0.20:8200

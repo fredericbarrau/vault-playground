@@ -17,7 +17,8 @@ realpath() {
 
 startVault() {
   (
-    vault server -dev >"$VAULT_LOG" 2>&1
+    vault server -dev \
+    -dev-listen-address=0.0.0.0:8200 >"$VAULT_LOG" 2>&1
   ) &
   sleep 5
   ROOT_TOKEN=$(sed -nE "s/Root Token: (.*)$/\1/p" "$VAULT_LOG")
