@@ -29,34 +29,50 @@ spec:
         app: app-example
       annotations:
         vault.hashicorp.com/agent-inject: 'true'
-        vault.hashicorp.com/agent-configmap: 'vault-application-configmap'
+        vault.hashicorp.com/agent-configmap: 'vault-sidecar-configmap'
         # AppRole/SecretID used by the vault agent to authenticate
         vault.hashicorp.com/agent-extra-secret: vault-development-approle-secretid 
-        # Application secrets:
-        # FIXME: not working :(
-        # vault.hashicorp.com/agent-inject-file-envvars: "/vault/secrets/secret-envvars"
-        # vault.hashicorp.com/agent-inject-secret-envvars: 'secret/dev-secret'
-        # # Environment variable export template
-        # vault.hashicorp.com/agent-inject-template-envvars: |
-        #   {{ with secret "secret/dev-secret" -}}
-        #     export DEV_SECRET_SECRET="{{ .Data.data.secret }}"
-        #     export DEV_SECRET_FOO="{{ .Data.data.foo }}"
-        #   {{- end }}        
-        
+        # Application secrets: Does not work :(
+        # vault.hashicorp.com/agent-inject-secret-shared: secret/shared-secret
+        # vault.hashicorp.com/agent-inject-template-shared: |
+        #   {{- with secret "secret/shared-secret" -}}
+        #     export SHARED_SECRET_SECRET="{{ .Data.data.secret }}"
+        #     export SHARED_SECRET_FOO="{{ .Data.data.foo }}"
+        #   {{- end }}
         # is mounted under /vault/custom in the sidecar
         #vault.hashicorp.com/tls-secret: 'vault-tls-client'
     spec:
       containers:
         - name: app
           image: docker.io/library/busybox:1.28
-          command: ['sh', '-c', 'source /vault/secrets/dev-secret-envvars && rm -f /vault/secrets/dev-secret-envvars && echo "Hello, Kubernetes!\nDEV_SECRET_SECRET=$DEV_SECRET_SECRET\nDEV_SECRET_FOO=$DEV_SECRET_FOO\n" && sleep 3600']
+          command: ['sh', '-c', 'source /vault/secrets/dev-secret-envvars && echo "Hello, Kubernetes!\nDEV_SECRET_SECRET=$DEV_SECRET_SECRET\nDEV_SECRET_FOO=$DEV_SECRET_FOO\n" && sleep 3600']
+          volumeMounts:
+          - name: vault-template-volume
+            mountPath: /vault/templates/
       serviceAccountName: app-example
+      volumes:
+        - name: vault-template-volume
+          configMap:
+            name: vault-injector-envvars-template
+            optional: true # mark the source ConfigMap as optional
+
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: vault-injector-envvars-template
+# data:
+#   envvars.tpl: |
+#     {{ with secret "secret/dev-secret" -}}
+#       export DEV_SECRET_SECRET="{{ .Data.data.secret }}"
+#       export DEV_SECRET_FOO="{{ .Data.data.foo }}"
+#     {{- end }}   
 
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: vault-application-configmap
+  name: vault-sidecar-configmap
 data:
   config.hcl: |
     "auto_auth" = {
@@ -82,12 +98,22 @@ data:
     "pid_file" = "/home/vault/.pid"
 
     "template" = {
-      "contents" = "{{- with secret \"secret/shared-secret\" -}}Shared secret foo: {{ .Data.data.foo }}\n{{- end }}"
-      "destination" = "/vault/secrets/shared-secret-foo"
+      "contents" = <<EOT
+        {{- with secret "secret/shared-secret" -}}
+          export SHARED_SECRET_SECRET="{{ .Data.data.secret }}"
+          export SHARED_SECRET_FOO="{{ .Data.data.foo }}"
+        {{- end }}
+    EOT
+      "destination" = "/vault/secrets/shared-secret-envvars"
     }
 
     "template" = {
-      "contents" = "{{- with secret \"secret/dev-secret\" -}}\nexport DEV_SECRET_SECRET=\"{{ .Data.data.secret }}\"\nexport DEV_SECRET_FOO=\"{{ .Data.data.foo }}\"\n{{- end }}"
+      "contents" = <<EOT
+        {{- with secret "secret/dev-secret" -}}
+        export DEV_SECRET_SECRET="{{ .Data.data.secret }}"
+        export DEV_SECRET_FOO="{{ .Data.data.foo }}"
+        {{- end }}
+    EOT
       "destination" = "/vault/secrets/dev-secret-envvars"
     }
 
