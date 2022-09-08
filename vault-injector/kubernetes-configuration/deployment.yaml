@@ -45,7 +45,7 @@ spec:
       containers:
         - name: app
           image: docker.io/library/busybox:1.28
-          command: ['sh', '-c', 'source /vault/secrets/dev-secret-envvars && echo "Hello, Kubernetes!\nDEV_SECRET_SECRET=$DEV_SECRET_SECRET\nDEV_SECRET_FOO=$DEV_SECRET_FOO\n" && sleep 3600']
+          command: ['sh', '-c', 'source /vault/secrets/envvars && env && echo "Hello, Kubernetes!" && sleep 3600']
           volumeMounts:
           - name: vault-template-volume
             mountPath: /vault/templates/
@@ -99,22 +99,17 @@ data:
 
     "template" = {
       "contents" = <<EOT
-        {{- with secret "secret/shared-secret" -}}
+        {{with secret "secret/shared-secret"}}
           export SHARED_SECRET_SECRET="{{ .Data.data.secret }}"
           export SHARED_SECRET_FOO="{{ .Data.data.foo }}"
-        {{- end }}
-    EOT
-      "destination" = "/vault/secrets/shared-secret-envvars"
-    }
+        {{end}}
 
-    "template" = {
-      "contents" = <<EOT
-        {{- with secret "secret/dev-secret" -}}
+        {{with secret "secret/dev-secret"}}
         export DEV_SECRET_SECRET="{{ .Data.data.secret }}"
         export DEV_SECRET_FOO="{{ .Data.data.foo }}"
-        {{- end }}
+        {{end }}
     EOT
-      "destination" = "/vault/secrets/dev-secret-envvars"
+      "destination" = "/vault/secrets/envvars"
     }
 
   config-init.hcl: |
