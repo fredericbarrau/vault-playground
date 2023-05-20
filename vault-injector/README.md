@@ -7,4 +7,4 @@
 
 ## Documentation
 
-* https://www.vaultproject.io/docs/platform/k8s/helmù
+* https://www.vaultproject.io/docs/platform/k8s/helm

@@ -18,7 +18,7 @@ $ vault write -f transit/keys/my_application/rotate
 
 => Data will be **encrypted** with a new key
 
-Chech the number of currently encryption keys :
+Chech the number of current encryption keys :
 
 ```console
 $ vault read -format=json -field=keys transit/keys/my_application 
@@ -45,7 +45,6 @@ Failed to decrypt ../data/vault-logo.png.20220827-121128.encrypted
 ```
 
 Keys are not removed, it is possible to re-allow encryption key 1 by lowering `min_decryption_version` again
-
 
 ## Documentation
 

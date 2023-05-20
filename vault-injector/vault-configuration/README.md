@@ -1,5 +1,6 @@
-```
-TF_VAR_kubenertes_host=
+
+
+```console
+TF_VAR_kubernetes_host=
 export TF_VAR_kubernetes_host
 ````
-
